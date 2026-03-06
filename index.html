@@ -1,610 +1,757 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CartoGo — El Movimiento, Reinventado.</title>
-  <style>
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    :root {
-      --black: #000000;
-      --near-black: #111111;
-      --dark: #1a1a1a;
-      --mid: #2a2a2a;
-      --subtle: #333333;
-      --muted: #666666;
-      --light-muted: #999999;
-      --border: #222222;
-      --white: #ffffff;
-      --off-white: #f5f5f5;
-      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    }
-
-    html {
-      font-size: 16px;
-      scroll-behavior: smooth;
-    }
-
-    body {
-      font-family: var(--font);
-      background-color: var(--black);
-      color: var(--white);
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-
-    /* ─── NAV ─── */
-    nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1.25rem 2rem;
-      background: rgba(0,0,0,0.85);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .nav-brand {
-      display: flex;
-      align-items: center;
-      gap: 0.625rem;
-      text-decoration: none;
-    }
-
-    .nav-symbol {
-      width: 28px;
-      height: 28px;
-      position: relative;
-    }
-
-    .nav-symbol svg {
-      width: 100%;
-      height: 100%;
-    }
-
-    .nav-name {
-      font-size: 1.0625rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: var(--white);
-    }
-
-    .nav-cta {
-      font-size: 0.8125rem;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--black);
-      background: var(--white);
-      border: none;
-      padding: 0.5rem 1.125rem;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-block;
-      transition: background 0.2s, color 0.2s;
-    }
-
-    .nav-cta:hover {
-      background: var(--off-white);
-    }
-
-    /* ─── HERO ─── */
-    .hero {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 8rem 2rem 5rem;
-      position: relative;
-      overflow: hidden;
-      background:
-        radial-gradient(ellipse 80% 60% at 50% 0%, #1c1c1c 0%, var(--black) 70%);
-    }
-
-    .hero-grid {
-      position: absolute;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-      background-size: 60px 60px;
-      pointer-events: none;
-    }
-
-    .hero-grid::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse 70% 50% at 50% 50%, transparent 40%, var(--black) 100%);
-    }
-
-    .hero-inner {
-      position: relative;
-      z-index: 1;
-      max-width: 860px;
-    }
-
-    .hero-tag {
-      display: inline-block;
-      font-size: 0.6875rem;
-      font-weight: 700;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--light-muted);
-      border: 1px solid var(--subtle);
-      padding: 0.3rem 0.75rem;
-      margin-bottom: 2.5rem;
-    }
-
-    .hero-headline {
-      font-size: clamp(2.5rem, 7vw, 5.5rem);
-      font-weight: 800;
-      line-height: 1.03;
-      letter-spacing: -0.04em;
-      margin-bottom: 1.5rem;
-      color: var(--white);
-    }
-
-    .hero-headline em {
-      font-style: normal;
-      color: var(--light-muted);
-    }
-
-    .hero-sub {
-      font-size: clamp(1rem, 2.5vw, 1.25rem);
-      font-weight: 400;
-      color: var(--muted);
-      max-width: 520px;
-      line-height: 1.65;
-      margin-bottom: 3rem;
-    }
-
-    .btn-primary {
-      display: inline-block;
-      font-size: 0.875rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--black);
-      background: var(--white);
-      border: none;
-      padding: 1rem 2.25rem;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background 0.2s, transform 0.15s;
-      position: relative;
-    }
-
-    .btn-primary::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border: 1px solid transparent;
-      transition: border-color 0.2s, inset 0.2s;
-    }
-
-    .btn-primary:hover {
-      background: var(--off-white);
-      transform: translateY(-1px);
-    }
-
-    .hero-scroll-hint {
-      position: absolute;
-      bottom: 2.5rem;
-      left: 2rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.6875rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--subtle);
-    }
-
-    .hero-scroll-hint span {
-      display: block;
-      width: 24px;
-      height: 1px;
-      background: var(--subtle);
-    }
-
-    /* ─── SECTION SHARED ─── */
-    section {
-      padding: 6rem 2rem;
-    }
-
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-    }
-
-    .section-label {
-      font-size: 0.6875rem;
-      font-weight: 700;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 3rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .section-label::before {
-      content: '';
-      display: block;
-      width: 32px;
-      height: 1px;
-      background: var(--subtle);
-    }
-
-    /* ─── VISION ─── */
-    .vision {
-      background: var(--near-black);
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .vision-headline {
-      font-size: clamp(2rem, 5vw, 3.75rem);
-      font-weight: 800;
-      letter-spacing: -0.04em;
-      line-height: 1.05;
-      margin-bottom: 4rem;
-      color: var(--white);
-    }
-
-    .vision-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 0;
-    }
-
-    @media (min-width: 640px) {
-      .vision-grid {
-        grid-template-columns: 1fr 1fr;
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CartoGo — El Movimiento, Reinventado.</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
       }
-    }
 
-    .vision-item {
-      padding: 2rem 0;
-      border-top: 1px solid var(--border);
-    }
-
-    .vision-item:nth-child(odd) {
-      padding-right: 2rem;
-    }
-
-    .vision-number {
-      font-size: 0.6875rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      color: var(--muted);
-      margin-bottom: 0.75rem;
-    }
-
-    .vision-item-title {
-      font-size: 1.0625rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: var(--white);
-      margin-bottom: 0.5rem;
-    }
-
-    .vision-item-desc {
-      font-size: 0.9375rem;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-
-    /* ─── PHILOSOPHY ─── */
-    .philosophy {
-      background: var(--black);
-    }
-
-    .manifesto {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-    }
-
-    .manifesto-line {
-      padding: 2.5rem 0;
-      border-top: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    .manifesto-line:last-child {
-      border-bottom: 1px solid var(--border);
-    }
-
-    .manifesto-statement {
-      font-size: clamp(1.375rem, 3.5vw, 2.25rem);
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      line-height: 1.15;
-      color: var(--white);
-    }
-
-    .manifesto-detail {
-      font-size: 0.9375rem;
-      color: var(--muted);
-      max-width: 560px;
-      line-height: 1.65;
-    }
-
-    /* ─── FOOTER CTA ─── */
-    .footer-cta {
-      background: var(--white);
-      color: var(--black);
-      padding: 6rem 2rem;
-    }
-
-    .footer-cta .container {
-      display: flex;
-      flex-direction: column;
-      gap: 3.5rem;
-    }
-
-    .footer-cta-headline {
-      font-size: clamp(1.75rem, 4.5vw, 3rem);
-      font-weight: 800;
-      letter-spacing: -0.04em;
-      line-height: 1.1;
-      color: var(--black);
-      max-width: 600px;
-    }
-
-    .footer-cta-sub {
-      font-size: 1rem;
-      color: var(--muted);
-      max-width: 420px;
-      line-height: 1.65;
-    }
-
-    .email-form {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      max-width: 480px;
-    }
-
-    @media (min-width: 500px) {
-      .email-form {
-        flex-direction: row;
-        gap: 0;
+      :root {
+        --black: #000000;
+        --near-black: #111111;
+        --dark: #1a1a1a;
+        --mid: #2a2a2a;
+        --subtle: #333333;
+        --muted: #666666;
+        --light-muted: #999999;
+        --border: #222222;
+        --white: #ffffff;
+        --off-white: #f5f5f5;
+        --font:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+          Arial, sans-serif;
       }
-    }
 
-    .email-input {
-      flex: 1;
-      font-family: var(--font);
-      font-size: 0.9375rem;
-      color: var(--black);
-      background: var(--off-white);
-      border: 1px solid #dddddd;
-      border-right: none;
-      padding: 0.875rem 1.125rem;
-      outline: none;
-      transition: border-color 0.2s;
-      width: 100%;
-    }
-
-    @media (max-width: 499px) {
-      .email-input {
-        border-right: 1px solid #dddddd;
-        border-bottom: none;
+      html {
+        font-size: 16px;
+        scroll-behavior: smooth;
       }
-    }
 
-    .email-input:focus {
-      border-color: var(--black);
-    }
+      body {
+        font-family: var(--font);
+        background-color: var(--black);
+        color: var(--white);
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
 
-    .email-input::placeholder {
-      color: #aaaaaa;
-    }
-
-    .btn-secondary {
-      font-family: var(--font);
-      font-size: 0.8125rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--white);
-      background: var(--black);
-      border: 1px solid var(--black);
-      padding: 0.875rem 1.5rem;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: background 0.2s, color 0.2s;
-    }
-
-    .btn-secondary:hover {
-      background: var(--near-black);
-    }
-
-    /* ─── SITE FOOTER ─── */
-    .site-footer {
-      background: var(--near-black);
-      border-top: 1px solid var(--border);
-      padding: 2rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-      align-items: flex-start;
-    }
-
-    @media (min-width: 640px) {
-      .site-footer {
-        flex-direction: row;
+      /* ─── NAV ─── */
+      nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        display: flex;
         align-items: center;
         justify-content: space-between;
+        padding: 1.25rem 2rem;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
       }
-    }
 
-    .footer-brand {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        text-decoration: none;
+      }
 
-    .footer-name {
-      font-size: 0.9375rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: var(--white);
-    }
+      .nav-symbol {
+        width: 28px;
+        height: 28px;
+        position: relative;
+      }
 
-    .footer-copy {
-      font-size: 0.8125rem;
-      color: var(--muted);
-    }
+      .nav-symbol svg {
+        width: 100%;
+        height: 100%;
+      }
 
-    /* ─── GEOMETRIC SYMBOL ─── */
-  </style>
-</head>
-<body>
+      .nav-name {
+        font-size: 1.0625rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: var(--white);
+      }
 
-  <!-- NAV -->
-  <nav>
-    <a class="nav-brand" href="#">
-      <div class="nav-symbol">
-        <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+      .nav-cta {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--black);
+        background: var(--white);
+        border: none;
+        padding: 0.5rem 1.125rem;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition:
+          background 0.2s,
+          color 0.2s;
+      }
+
+      .nav-cta:hover {
+        background: var(--off-white);
+      }
+
+      /* ─── HERO ─── */
+      .hero {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 8rem 2rem 5rem;
+        position: relative;
+        overflow: hidden;
+        background: radial-gradient(
+          ellipse 80% 60% at 50% 0%,
+          #1c1c1c 0%,
+          var(--black) 70%
+        );
+      }
+
+      .hero-grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        background-size: 60px 60px;
+        pointer-events: none;
+      }
+
+      .hero-grid::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          ellipse 70% 50% at 50% 50%,
+          transparent 40%,
+          var(--black) 100%
+        );
+      }
+
+      .hero-inner {
+        position: relative;
+        z-index: 1;
+        max-width: 860px;
+      }
+
+      .hero-tag {
+        display: inline-block;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--light-muted);
+        border: 1px solid var(--subtle);
+        padding: 0.3rem 0.75rem;
+        margin-bottom: 2.5rem;
+      }
+
+      .hero-headline {
+        font-size: clamp(2.5rem, 7vw, 5.5rem);
+        font-weight: 800;
+        line-height: 1.03;
+        letter-spacing: -0.04em;
+        margin-bottom: 1.5rem;
+        color: var(--white);
+      }
+
+      .hero-headline em {
+        font-style: normal;
+        color: var(--light-muted);
+      }
+
+      .hero-sub {
+        font-size: clamp(1rem, 2.5vw, 1.25rem);
+        font-weight: 400;
+        color: var(--muted);
+        max-width: 520px;
+        line-height: 1.65;
+        margin-bottom: 3rem;
+      }
+
+      .btn-primary {
+        display: inline-block;
+        font-size: 0.875rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--black);
+        background: var(--white);
+        border: none;
+        padding: 1rem 2.25rem;
+        cursor: pointer;
+        text-decoration: none;
+        transition:
+          background 0.2s,
+          transform 0.15s;
+        position: relative;
+      }
+
+      .btn-primary::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border: 1px solid transparent;
+        transition:
+          border-color 0.2s,
+          inset 0.2s;
+      }
+
+      .btn-primary:hover {
+        background: var(--off-white);
+        transform: translateY(-1px);
+      }
+
+      .hero-scroll-hint {
+        position: absolute;
+        bottom: 2.5rem;
+        left: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.6875rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--subtle);
+      }
+
+      .hero-scroll-hint span {
+        display: block;
+        width: 24px;
+        height: 1px;
+        background: var(--subtle);
+      }
+
+      /* ─── SECTION SHARED ─── */
+      section {
+        padding: 6rem 2rem;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      .section-label {
+        font-size: 0.6875rem;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 3rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .section-label::before {
+        content: "";
+        display: block;
+        width: 32px;
+        height: 1px;
+        background: var(--subtle);
+      }
+
+      /* ─── VISION ─── */
+      .vision {
+        background: var(--near-black);
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .vision-headline {
+        font-size: clamp(2rem, 5vw, 3.75rem);
+        font-weight: 800;
+        letter-spacing: -0.04em;
+        line-height: 1.05;
+        margin-bottom: 4rem;
+        color: var(--white);
+      }
+
+      .vision-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+
+      @media (min-width: 640px) {
+        .vision-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      .vision-item {
+        padding: 2rem 0;
+        border-top: 1px solid var(--border);
+      }
+
+      .vision-item:nth-child(odd) {
+        padding-right: 2rem;
+      }
+
+      .vision-number {
+        font-size: 0.6875rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        color: var(--muted);
+        margin-bottom: 0.75rem;
+      }
+
+      .vision-item-title {
+        font-size: 1.0625rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: var(--white);
+        margin-bottom: 0.5rem;
+      }
+
+      .vision-item-desc {
+        font-size: 0.9375rem;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      /* ─── PHILOSOPHY ─── */
+      .philosophy {
+        background: var(--black);
+      }
+
+      .manifesto {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+
+      .manifesto-line {
+        padding: 2.5rem 0;
+        border-top: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .manifesto-line:last-child {
+        border-bottom: 1px solid var(--border);
+      }
+
+      .manifesto-statement {
+        font-size: clamp(1.375rem, 3.5vw, 2.25rem);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1.15;
+        color: var(--white);
+      }
+
+      .manifesto-detail {
+        font-size: 0.9375rem;
+        color: var(--muted);
+        max-width: 560px;
+        line-height: 1.65;
+      }
+
+      /* ─── FOOTER CTA ─── */
+      .footer-cta {
+        background: var(--white);
+        color: var(--black);
+        padding: 6rem 2rem;
+      }
+
+      .footer-cta .container {
+        display: flex;
+        flex-direction: column;
+        gap: 3.5rem;
+      }
+
+      .footer-cta-headline {
+        font-size: clamp(1.75rem, 4.5vw, 3rem);
+        font-weight: 800;
+        letter-spacing: -0.04em;
+        line-height: 1.1;
+        color: var(--black);
+        max-width: 600px;
+      }
+
+      .footer-cta-sub {
+        font-size: 1rem;
+        color: var(--muted);
+        max-width: 420px;
+        line-height: 1.65;
+      }
+
+      .email-form {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        max-width: 480px;
+      }
+
+      @media (min-width: 500px) {
+        .email-form {
+          flex-direction: row;
+          gap: 0;
+        }
+      }
+
+      .email-input {
+        flex: 1;
+        font-family: var(--font);
+        font-size: 0.9375rem;
+        color: var(--black);
+        background: var(--off-white);
+        border: 1px solid #dddddd;
+        border-right: none;
+        padding: 0.875rem 1.125rem;
+        outline: none;
+        transition: border-color 0.2s;
+        width: 100%;
+      }
+
+      @media (max-width: 499px) {
+        .email-input {
+          border-right: 1px solid #dddddd;
+          border-bottom: none;
+        }
+      }
+
+      .email-input:focus {
+        border-color: var(--black);
+      }
+
+      .email-input::placeholder {
+        color: #aaaaaa;
+      }
+
+      .btn-secondary {
+        font-family: var(--font);
+        font-size: 0.8125rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--white);
+        background: var(--black);
+        border: 1px solid var(--black);
+        padding: 0.875rem 1.5rem;
+        cursor: pointer;
+        white-space: nowrap;
+        transition:
+          background 0.2s,
+          color 0.2s;
+      }
+
+      .btn-secondary:hover {
+        background: var(--near-black);
+      }
+
+      /* ─── SITE FOOTER ─── */
+      .site-footer {
+        background: var(--near-black);
+        border-top: 1px solid var(--border);
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+        align-items: flex-start;
+      }
+
+      @media (min-width: 640px) {
+        .site-footer {
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+        }
+      }
+
+      .footer-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .footer-name {
+        font-size: 0.9375rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: var(--white);
+      }
+
+      .footer-copy {
+        font-size: 0.8125rem;
+        color: var(--muted);
+      }
+
+      /* ─── GEOMETRIC SYMBOL ─── */
+    </style>
+  </head>
+  <body>
+    <!-- NAV -->
+    <nav>
+      <a class="nav-brand" href="#">
+        <div class="nav-symbol">
+          <svg
+            viewBox="0 0 28 28"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <title>logo</title>
+            <rect
+              x="1"
+              y="1"
+              width="26"
+              height="26"
+              stroke="white"
+              stroke-width="1.5"
+            />
+            <circle cx="14" cy="14" r="5" stroke="white" stroke-width="1.5" />
+            <line
+              x1="14"
+              y1="1"
+              x2="14"
+              y2="9"
+              stroke="white"
+              stroke-width="1.5"
+            />
+            <line
+              x1="14"
+              y1="19"
+              x2="14"
+              y2="27"
+              stroke="white"
+              stroke-width="1.5"
+            />
+            <line
+              x1="1"
+              y1="14"
+              x2="9"
+              y2="14"
+              stroke="white"
+              stroke-width="1.5"
+            />
+            <line
+              x1="19"
+              y1="14"
+              x2="27"
+              y2="14"
+              stroke="white"
+              stroke-width="1.5"
+            />
+          </svg>
+        </div>
+        <span class="nav-name">CartoGo</span>
+      </a>
+      <a class="nav-cta" href="#join">Únete al Movimiento</a>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-grid"></div>
+      <div class="hero-inner">
+        <div class="hero-tag">Registro de Movimiento — Reconstruido</div>
+        <h1 class="hero-headline">
+          Registra a dónde<br />
+          vas.<br />
+          <em>Dueño de tu historia.</em>
+        </h1>
+        <p class="hero-sub">
+          CartoGo devuelve la claridad, el control y la alegría al movimiento.
+          Sin ruido. Sin excesos. Solo tú, tus rutas y el mundo bajo tus pies.
+        </p>
+        <a class="btn-primary" href="#join">Únete al Movimiento</a>
+      </div>
+      <div class="hero-scroll-hint"><span></span> Desplazar</div>
+    </section>
+
+    <!-- VISION -->
+    <section class="vision">
+      <div class="container">
+        <div class="section-label">Nuestra Visión</div>
+        <h2 class="vision-headline">El Movimiento,<br />Reinventado.</h2>
+        <div class="vision-grid">
+          <div class="vision-item">
+            <div class="vision-number">01</div>
+            <div class="vision-item-title">Tus datos. Punto final.</div>
+            <p class="vision-item-desc">
+              Creemos que tu movimiento te pertenece a ti — no a los
+              anunciantes, no a los algoritmos. CartoGo te da control real sobre
+              cada punto, cada ruta, cada momento.
+            </p>
+          </div>
+          <div class="vision-item">
+            <div class="vision-number">02</div>
+            <div class="vision-item-title">Experiencia sobre obsesión.</div>
+            <p class="vision-item-desc">
+              Las métricas son útiles. Adorarlas no lo es. CartoGo pone la
+              experiencia del movimiento en el centro — los números están cuando
+              los necesitas, invisibles cuando no.
+            </p>
+          </div>
+          <div class="vision-item">
+            <div class="vision-number">03</div>
+            <div class="vision-item-title">Una interfaz que te respeta.</div>
+            <p class="vision-item-desc">
+              Limpia, considerada, deliberada. Cada pantalla gana su lugar.
+              Eliminamos la fricción para que solo quede lo que importa.
+            </p>
+          </div>
+          <div class="vision-item">
+            <div class="vision-number">04</div>
+            <div class="vision-item-title">Comunidad, no ruido.</div>
+            <p class="vision-item-desc">
+              Conexión construida alrededor de rutas compartidas — no de likes
+              ni de clasificaciones. Una comunidad que se mueve junta en lugar
+              de actuar para los demás.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PHILOSOPHY -->
+    <section class="philosophy">
+      <div class="container">
+        <div class="section-label">Manifiesto</div>
+        <div class="manifesto">
+          <div class="manifesto-line">
+            <div class="manifesto-statement">Tus rutas son historias.</div>
+            <p class="manifesto-detail">
+              Cada camino que recorres lleva contexto — estado de ánimo,
+              intención, memoria. CartoGo está construido para honrar eso, no
+              para reducirlo a una puntuación de rendimiento.
+            </p>
+          </div>
+          <div class="manifesto-line">
+            <div class="manifesto-statement">
+              Los mapas no son datos. Son recuerdos.
+            </div>
+            <p class="manifesto-detail">
+              Una línea en un mapa es una mañana en la que decidiste moverte. Un
+              camino por una ciudad. Una decisión tomada por el cuerpo antes de
+              que la mente lo comprendiera. Los datos son la sombra de la
+              experiencia — no los confundas con la cosa misma.
+            </p>
+          </div>
+          <div class="manifesto-line">
+            <div class="manifesto-statement">
+              La tecnología debe servir al movimiento, no consumirlo.
+            </div>
+            <p class="manifesto-detail">
+              Nos perdimos en el camino. La app se convirtió en el objetivo. El
+              registro se volvió la meta. CartoGo existe para reequilibrar esto
+              — para devolver la herramienta a su lugar correcto, útil en
+              silencio detrás de lo que realmente importa.
+            </p>
+          </div>
+          <div class="manifesto-line">
+            <div class="manifesto-statement">
+              Simple no es lo mismo que fácil. Es más difícil.
+            </div>
+            <p class="manifesto-detail">
+              La simplicidad requiere disciplina. Significa decir no a cien
+              funciones razonables para que las esenciales puedan respirar. Este
+              es el trabajo al que nos comprometemos.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER CTA -->
+    <section class="footer-cta" id="join">
+      <div class="container">
+        <div>
+          <h2 class="footer-cta-headline">Sé el primero en el mapa.</h2>
+          <p class="footer-cta-sub">
+            CartoGo está en camino. Únete temprano y ayuda a dar forma a un
+            registrador de movimiento construido como siempre debió haber sido.
+          </p>
+        </div>
+        <div class="email-form">
+          <input
+            class="email-input"
+            type="email"
+            placeholder="tu@correo.com"
+            aria-label="Correo electrónico"
+          />
+          <button class="btn-secondary" type="button">Acceso Anticipado</button>
+        </div>
+        <p class="footer-copy" style="font-size: 0.8125rem; color: #999">
+          Sin spam. Sin ruido. Solo CartoGo cuando esté listo.
+        </p>
+      </div>
+    </section>
+
+    <!-- SITE FOOTER -->
+    <footer class="site-footer">
+      <div class="footer-brand">
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 28 28"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <title>logo</title>
-          <rect x="1" y="1" width="26" height="26" stroke="white" stroke-width="1.5"/>
-          <circle cx="14" cy="14" r="5" stroke="white" stroke-width="1.5"/>
-          <line x1="14" y1="1" x2="14" y2="9" stroke="white" stroke-width="1.5"/>
-          <line x1="14" y1="19" x2="14" y2="27" stroke="white" stroke-width="1.5"/>
-          <line x1="1" y1="14" x2="9" y2="14" stroke="white" stroke-width="1.5"/>
-          <line x1="19" y1="14" x2="27" y2="14" stroke="white" stroke-width="1.5"/>
+          <rect
+            x="1"
+            y="1"
+            width="26"
+            height="26"
+            stroke="white"
+            stroke-width="1.5"
+          />
+          <circle cx="14" cy="14" r="5" stroke="white" stroke-width="1.5" />
+          <line
+            x1="14"
+            y1="1"
+            x2="14"
+            y2="9"
+            stroke="white"
+            stroke-width="1.5"
+          />
+          <line
+            x1="14"
+            y1="19"
+            x2="14"
+            y2="27"
+            stroke="white"
+            stroke-width="1.5"
+          />
+          <line
+            x1="1"
+            y1="14"
+            x2="9"
+            y2="14"
+            stroke="white"
+            stroke-width="1.5"
+          />
+          <line
+            x1="19"
+            y1="14"
+            x2="27"
+            y2="14"
+            stroke="white"
+            stroke-width="1.5"
+          />
         </svg>
+        <span class="footer-name">CartoGo</span>
       </div>
-      <span class="nav-name">CartoGo</span>
-    </a>
-    <a class="nav-cta" href="#join">Únete al Movimiento</a>
-  </nav>
-
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-grid"></div>
-    <div class="hero-inner">
-      <div class="hero-tag">Registro de Movimiento — Reconstruido</div>
-      <h1 class="hero-headline">
-        Registra a dónde<br />
-        vas.<br />
-        <em>Dueño de tu historia.</em>
-      </h1>
-      <p class="hero-sub">
-        CartoGo devuelve la claridad, el control y la alegría al movimiento. Sin ruido. Sin excesos. Solo tú, tus rutas y el mundo bajo tus pies.
-      </p>
-      <a class="btn-primary" href="#join">Únete al Movimiento</a>
-    </div>
-    <div class="hero-scroll-hint">
-      <span></span> Desplazar
-    </div>
-  </section>
-
-  <!-- VISION -->
-  <section class="vision">
-    <div class="container">
-      <div class="section-label">Nuestra Visión</div>
-      <h2 class="vision-headline">El Movimiento,<br />Reinventado.</h2>
-      <div class="vision-grid">
-        <div class="vision-item">
-          <div class="vision-number">01</div>
-          <div class="vision-item-title">Tus datos. Punto final.</div>
-          <p class="vision-item-desc">Creemos que tu movimiento te pertenece a ti — no a los anunciantes, no a los algoritmos. CartoGo te da control real sobre cada punto, cada ruta, cada momento.</p>
-        </div>
-        <div class="vision-item">
-          <div class="vision-number">02</div>
-          <div class="vision-item-title">Experiencia sobre obsesión.</div>
-          <p class="vision-item-desc">Las métricas son útiles. Adorarlas no lo es. CartoGo pone la experiencia del movimiento en el centro — los números están cuando los necesitas, invisibles cuando no.</p>
-        </div>
-        <div class="vision-item">
-          <div class="vision-number">03</div>
-          <div class="vision-item-title">Una interfaz que te respeta.</div>
-          <p class="vision-item-desc">Limpia, considerada, deliberada. Cada pantalla gana su lugar. Eliminamos la fricción para que solo quede lo que importa.</p>
-        </div>
-        <div class="vision-item">
-          <div class="vision-number">04</div>
-          <div class="vision-item-title">Comunidad, no ruido.</div>
-          <p class="vision-item-desc">Conexión construida alrededor de rutas compartidas — no de likes ni de clasificaciones. Una comunidad que se mueve junta en lugar de actuar para los demás.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- PHILOSOPHY -->
-  <section class="philosophy">
-    <div class="container">
-      <div class="section-label">Manifiesto</div>
-      <div class="manifesto">
-        <div class="manifesto-line">
-          <div class="manifesto-statement">Tus rutas son historias.</div>
-          <p class="manifesto-detail">Cada camino que recorres lleva contexto — estado de ánimo, intención, memoria. CartoGo está construido para honrar eso, no para reducirlo a una puntuación de rendimiento.</p>
-        </div>
-        <div class="manifesto-line">
-          <div class="manifesto-statement">Los mapas no son datos. Son recuerdos.</div>
-          <p class="manifesto-detail">Una línea en un mapa es una mañana en la que decidiste moverte. Un camino por una ciudad. Una decisión tomada por el cuerpo antes de que la mente lo comprendiera. Los datos son la sombra de la experiencia — no los confundas con la cosa misma.</p>
-        </div>
-        <div class="manifesto-line">
-          <div class="manifesto-statement">La tecnología debe servir al movimiento, no consumirlo.</div>
-          <p class="manifesto-detail">Nos perdimos en el camino. La app se convirtió en el objetivo. El registro se volvió la meta. CartoGo existe para reequilibrar esto — para devolver la herramienta a su lugar correcto, útil en silencio detrás de lo que realmente importa.</p>
-        </div>
-        <div class="manifesto-line">
-          <div class="manifesto-statement">Simple no es lo mismo que fácil. Es más difícil.</div>
-          <p class="manifesto-detail">La simplicidad requiere disciplina. Significa decir no a cien funciones razonables para que las esenciales puedan respirar. Este es el trabajo al que nos comprometemos.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- FOOTER CTA -->
-  <section class="footer-cta" id="join">
-    <div class="container">
-      <div>
-        <h2 class="footer-cta-headline">Sé el primero en el mapa.</h2>
-        <p class="footer-cta-sub">CartoGo está en camino. Únete temprano y ayuda a dar forma a un registrador de movimiento construido como siempre debió haber sido.</p>
-      </div>
-      <div class="email-form">
-        <input class="email-input" type="email" placeholder="tu@correo.com" aria-label="Correo electrónico" />
-        <button class="btn-secondary" type="button">Acceso Anticipado</button>
-      </div>
-      <p class="footer-copy" style="font-size:0.8125rem; color:#999;">Sin spam. Sin ruido. Solo CartoGo cuando esté listo.</p>
-    </div>
-  </section>
-
-  <!-- SITE FOOTER -->
-  <footer class="site-footer">
-    <div class="footer-brand">
-      <svg width="20" height="20" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <title>logo</title>
-        <rect x="1" y="1" width="26" height="26" stroke="white" stroke-width="1.5"/>
-        <circle cx="14" cy="14" r="5" stroke="white" stroke-width="1.5"/>
-        <line x1="14" y1="1" x2="14" y2="9" stroke="white" stroke-width="1.5"/>
-        <line x1="14" y1="19" x2="14" y2="27" stroke="white" stroke-width="1.5"/>
-        <line x1="1" y1="14" x2="9" y2="14" stroke="white" stroke-width="1.5"/>
-        <line x1="19" y1="14" x2="27" y2="14" stroke="white" stroke-width="1.5"/>
-      </svg>
-      <span class="footer-name">CartoGo</span>
-    </div>
-    <span class="footer-copy">© 2026 CartoGo. Todos los derechos reservados.</span>
-  </footer>
-
-</body>
+      <span class="footer-copy"
+        >© 2026 CartoGo. Todos los derechos reservados.</span
+      >
+    </footer>
+  </body>
 </html>
