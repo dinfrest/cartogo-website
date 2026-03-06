@@ -1,0 +1,16 @@
+{
+	"name": "cartogo-website",
+	"version": "1.0.0",
+	"main": "index.js",
+	"scripts": {
+		"lint": "biome check --write",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"description": "",
+	"devDependencies": {
+		"@biomejs/biome": "2.4.6"
+	}
+}
